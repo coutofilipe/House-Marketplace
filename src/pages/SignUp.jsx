@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { ReactComponent as ArrowRightIcon } from "../assets/svg/keyboardArrowRightIcon.svg"
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase.config"
 import visibilityIcon from "../assets/svg/visibilityIcon.svg"
 
 function SignUp() {
@@ -22,6 +25,35 @@ function SignUp() {
     }))
   }
 
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const auth = getAuth()
+
+      // This is the function used to register a new user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+
+      const user = userCredential.user
+
+      updateProfile(auth.currentUser, {
+        displayName: name
+      })
+
+      // So we don't change the formData state(name, email, password)
+      // we create the following var so we can delete the passwrord and it won't be stored in th db
+      const formDataCopy = { ...formData }
+      // so we don't submit the password to the dataBase
+      delete formDataCopy.password
+      formDataCopy.timestamp = serverTimestamp()
+
+      await setDoc(doc(db, 'users', user.uid), formDataCopy)
+
+      navigate('/')
+    } catch (error) {
+      console.log(error);
+
+    }
+  }
   return (
     <>
       <div className="pageContainer">
@@ -29,7 +61,7 @@ function SignUp() {
           <p className="pageHeader">Sign Up!</p>
         </header>
         <main>
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               type="text"
               className="nameInput"
