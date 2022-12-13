@@ -4,6 +4,7 @@ import { ReactComponent as ArrowRightIcon } from "../assets/svg/keyboardArrowRig
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase.config"
+import { toast } from "react-toastify"
 import visibilityIcon from "../assets/svg/visibilityIcon.svg"
 
 function SignUp() {
@@ -45,12 +46,12 @@ function SignUp() {
       // so we don't submit the password to the dataBase
       delete formDataCopy.password
       formDataCopy.timestamp = serverTimestamp()
-
+      // save the user to the database to the users collection
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
 
       navigate('/')
     } catch (error) {
-      console.log(error);
+      toast.error('Bad cred')
 
     }
   }

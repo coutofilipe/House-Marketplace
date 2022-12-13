@@ -1,6 +1,6 @@
 function Explore() {
   return (
-    <div>Explore</div>
+    <h1>Explore</h1>
   )
 }
 export default Explore
